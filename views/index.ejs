@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Items List</title>
+    <!-- Include Bootstrap CSS link here -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <h1>Items List</h1>
+
+    <!-- Add a Bootstrap button to trigger data fetching -->
+    <button id="fetchDataBtn" class="btn btn-primary">Fetch Data</button>
+    <button id="HideDataBtn" class="btn btn-primary">Hide Data</button>
+    <ul id="itemsList" style="display: none;"></ul>
+
+    <script>
+        $(document).ready(function () {
+            $("#HideDataBtn").click(function () {
+                $("#itemsList").hide();
+            })
+            let token = null;
+
+            $("#fetchDataBtn").click(function () {
+                token = "hhhyyy" // Generate a simple token
+                $.ajax({
+                    type: "GET",
+                    url: "/fetchdata",
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        const itemsList = $("#itemsList");
+                        itemsList.empty();
+                        data.forEach(item => {
+                            const listItem = `<li><h3>${item.name}</h3><p>${item.description}</p></li>`;
+                            itemsList.append(listItem);
+                        });
+                        itemsList.show();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
