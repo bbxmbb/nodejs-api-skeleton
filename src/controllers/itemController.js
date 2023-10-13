@@ -76,8 +76,8 @@ const getItems2 = async (req, res) => {
             stringValue: row.string,
             numberValue: row.number,
             booleanValue: Boolean(row.bool),
-            arrayValue: JSON.parse(row.array),
-            objectValue: JSON.parse(row.object)
+            arrayValue: JSON.parse(row.array || '[]'),
+            objectValue: JSON.parse(row.object || '{}')
         }));
         res.setHeader('X-Data-Source', 'Cache');
         res.json(createApiResponse("success", 200, "Request successful", formattedData));
@@ -94,8 +94,8 @@ const getItems2 = async (req, res) => {
             stringValue: row.string,
             numberValue: row.number,
             booleanValue: Boolean(row.bool),
-            arrayValue: JSON.parse(row.array),
-            objectValue: JSON.parse(row.object)
+            arrayValue: JSON.parse(row.array || '[]'),
+            objectValue: JSON.parse(row.object || '{}')
         }));
         // console.log("Data from cache: false");
         // Send the fetched data
