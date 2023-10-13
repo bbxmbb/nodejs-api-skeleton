@@ -11,3 +11,17 @@ to install all dependencies
 `SECRET_KEY=<your-secret-key-for-jwt>`\
 `REFRESH_TOKEN_KEY=`
 
+# create 2 tables in database
+1. items
+   1. id(int-primarykey)
+   2. name(text)
+   3. description(text)
+   4. number(float)
+   5. bool(BOOLEAN)
+   6. array(text)
+   7. object(text)
+2. users
+   1. id(int-primarykey)
+   2. username(text)
+   3. password(text)
+   4. token(text)
