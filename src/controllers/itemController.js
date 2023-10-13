@@ -1,19 +1,21 @@
 require("dotenv").config();
-const { pool } = require('../models/db.js');
-const redis = require('redis');
+const {
+    pool
+} = require('../models/db.js');
+// const redis = require('redis');
 const _ = require('lodash');
 // const redis_server = require('../redis_server');
 // const redisServer = new redis_server();
 // Create a Redis client
-const redisClient = redis.createClient({
-    host: 'localhost',
-    port: 6379 // Default Redis port
-});
-redisClient.connect();
+// const redisClient = redis.createClient({
+//     host: 'localhost',
+//     port: 6379 // Default Redis port
+// });
+// redisClient.connect();
 
-redisClient.on('error', err => {
-    console.log('Error ' + err);
-});
+// redisClient.on('error', err => {
+//     console.log('Error ' + err);
+// });
 // GET method to retrieve all items
 const getItems = async (req, res) => {
     // const {name} = req.query;
@@ -32,7 +34,6 @@ const getItems = async (req, res) => {
 
         // Query data from the database
         const [rows] = await pool.query(query);
-
         // Format the data (if needed)
         const formattedData = rows.map(row => ({
             id: row.id,
@@ -41,15 +42,15 @@ const getItems = async (req, res) => {
             stringValue: row.string,
             numberValue: row.number,
             booleanValue: Boolean(row.bool),
-            arrayValue: JSON.parse(row.array),
-            objectValue: JSON.parse(row.object)
+            arrayValue: JSON.parse(row.array || '[]'),
+            objectValue: JSON.parse(row.object || '{}')
         }));
         // Respond with JSON
         res.json(createApiResponse("success", 200, "Request successful", formattedData));
     } catch (error) {
         console.error(error);
 
-        res.status(500).json(createApiResponse("error", 500, "Internal server error", NULL));
+        res.status(500).json(createApiResponse("error", 500, "Internal server error", null));
     }
 }
 const getItems2 = async (req, res) => {
@@ -64,7 +65,7 @@ const getItems2 = async (req, res) => {
     }
 
     const cacheKey = `pagination:${pageNumber}:${pageSize}`;
-    const data = JSON.parse(await redisClient.get(cacheKey));
+    // const data = JSON.parse(await redisClient.get(cacheKey));
     if (data !== null) {
         // Data is cached, send the cached data
         // Format the data (if needed)
@@ -84,7 +85,7 @@ const getItems2 = async (req, res) => {
 
         const [rows] = await pool.query(query);
         // Cache the items in Redis
-        await redisClient.setEx(cacheKey, 60, JSON.stringify(rows));
+        // await redisClient.setEx(cacheKey, 60, JSON.stringify(rows));
 
         const formattedData = rows.map(row => ({
             id: row.id,
@@ -102,7 +103,15 @@ const getItems2 = async (req, res) => {
     }
 }
 const postItems = async (req, res) => {
-    const { name, description, stringValue, numberValue, booleanValue, arrayValue, objectValue } = req.body;
+    const {
+        name,
+        description,
+        stringValue,
+        numberValue,
+        booleanValue,
+        arrayValue,
+        objectValue
+    } = req.body;
 
     if (!name || !description) {
         res.status(400).json(createApiResponse("error", 400, "Missing required fields", NULL));
@@ -149,7 +158,15 @@ const postItems = async (req, res) => {
     }
 }
 const postItems2 = async (req, res) => {
-    const { name, description, stringValue, numberValue, booleanValue, arrayValue, objectValue } = req.body;
+    const {
+        name,
+        description,
+        stringValue,
+        numberValue,
+        booleanValue,
+        arrayValue,
+        objectValue
+    } = req.body;
 
     if (!name || !description) {
         res.status(400).json(createApiResponse("error", 400, "Missing required fields", NULL));
@@ -203,27 +220,38 @@ const postItems2 = async (req, res) => {
         const totalPages = Math.ceil(totalRecords / pageSize);
         const cacheKey = `pagination:${pageNumber}:${pageSize}`;
 
-        await redisClient.setEx(cacheKey, 60, JSON.stringify(rows));
+        // await redisClient.setEx(cacheKey, 60, JSON.stringify(rows));
         // res.json(rows);
         res.json(createApiResponse("success", 200, "Item Insert Successfully", req.body));
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({
+            error: 'Internal server error'
+        });
     }
 }
 const putItems = async (req, res) => {
     const itemId = req.params.id;
-    const { name, description } = req.body;
+    const {
+        name,
+        description
+    } = req.body;
     if (!name || !description) {
-        res.status(400).json({ error: 'Missing required fields' });
+        res.status(400).json({
+            error: 'Missing required fields'
+        });
         return;
     }
 
     try {
         await pool.query('UPDATE items SET name = ?, description = ? WHERE id = ?', [name, description, itemId]);
-        res.json({ message: 'Item updated successfully' });
+        res.json({
+            message: 'Item updated successfully'
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({
+            error: 'Internal server error'
+        });
     }
 }
 const deleteItems = async (req, res) => {
@@ -233,9 +261,12 @@ const deleteItems = async (req, res) => {
         await pool.query('DELETE FROM items WHERE id = ?', [itemId]);
         res.json(createApiResponse("success", 200, "Items deleted"));
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({
+            error: 'Internal server error'
+        });
     }
 }
+
 function arrayContainsOnly(arr, expectedDataTypes, length) {
     if (arr.length > length || arr.length < length) {
         return false;
@@ -257,6 +288,7 @@ function arrayContainsOnly(arr, expectedDataTypes, length) {
         return true;
     }
 }
+
 function isValidObjectFormat(obj, expectedKeys, expectedDataTypes) {
     if (
         typeof obj !== 'object' ||
@@ -285,6 +317,7 @@ function isValidObjectFormat(obj, expectedKeys, expectedDataTypes) {
     }
     return true;
 }
+
 function createApiResponse(status, code, message, data = null) {
     const response = {
         status,
@@ -294,4 +327,11 @@ function createApiResponse(status, code, message, data = null) {
     };
     return response;
 }
-module.exports = { getItems, postItems, putItems, deleteItems, getItems2, postItems2 }
+module.exports = {
+    getItems,
+    postItems,
+    putItems,
+    deleteItems,
+    getItems2,
+    postItems2
+}
