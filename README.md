@@ -1,9 +1,13 @@
-#Please setup the env file for\
-DB_HOST\
-DB_USER\
-DB_DATABASE\
-DB_PASSWORD
+# run code
+run\
+`npm install`\
+to install all library
+# THen setup the .env file for\
+`DB_HOST=<your-host>`\
+`DB_USER=<your-username>`\
+`DB_DATABASE=<your-databasename>`\
+`DB_PASSWORD=<your-database-password>`
 
-SECRET_KEY\
-REFRESH_TOKEN_KEY\
-master
+`SECRET_KEY=<your-secret-key-for-jwt>`\
+`REFRESH_TOKEN_KEY=`\
+
