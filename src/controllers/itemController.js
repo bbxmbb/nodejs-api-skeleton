@@ -66,6 +66,7 @@ const getItems2 = async (req, res) => {
 
     const cacheKey = `pagination:${pageNumber}:${pageSize}`;
     // const data = JSON.parse(await redisClient.get(cacheKey));
+    const data = null;
     if (data !== null) {
         // Data is cached, send the cached data
         // Format the data (if needed)
